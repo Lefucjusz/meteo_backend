@@ -1,0 +1,16 @@
+{
+  "name": "meteo_backend",
+  "version": "1.0.0",
+  "description": "Backend for meteo station project",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon ./src/index.js"
+  },
+  "author": "Lefucjusz",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.15",
+    "sqlite-async": "^1.1.2"
+  }
+}
