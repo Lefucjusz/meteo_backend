@@ -1,6 +1,6 @@
 const express = require('express');
 const api = require('./api');
-const db = require('./db');
+const dbPromise = require('./db');
 const app = express();
 const port = 3000;
 

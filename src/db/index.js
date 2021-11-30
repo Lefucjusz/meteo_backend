@@ -1,17 +1,8 @@
 const SqliteDatabase = require('sqlite-async');
 
-let db = null;
-
-async function connectToDB() {
-    try {
-        db = await SqliteDatabase.open('./measurements.db');
-    } catch(err) {
-        throw new Error(`Error connecting to SQLite DB: ${err}!`);
-    }
-}
-
 async function initializeDB() {
     try {
+        const db = await SqliteDatabase.open('./measurements.db');
         await db.run(`
             CREATE TABLE IF NOT EXISTS measurements (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,17 +14,11 @@ async function initializeDB() {
                 pressure INTEGER
             );`
         );
+        console.log('Database initialized!');
+        return db;
     } catch(err) {
         throw new Error(`Error initializing SQLite DB: ${err}!`);
     }
 }
 
-async function init() {
-    await connectToDB();
-    await initializeDB();
-    console.log('Database initialized!');
-}
-
-init();
-
-module.exports = db;
+module.exports = initializeDB();
