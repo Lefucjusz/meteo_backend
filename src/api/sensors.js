@@ -2,7 +2,7 @@ const express = require('express');
 const dbPromise = require('../db');
 const router = express.Router();
 
-router.post('/fullMeas', async (req, res) => {
+router.post('/sendFull', async (req, res) => {
     const db = await dbPromise;
     const data = req.body;
     if(!data || !data.name || !data.to || !data.ti || !data.p || !data.h) {
@@ -27,7 +27,7 @@ router.post('/fullMeas', async (req, res) => {
 });
 
 
-router.post('/tempMeas', async (req, res) => {
+router.post('/sendTemp', async (req, res) => {
     const db = await dbPromise;
     const data = req.body;
     if(!data || !data.name || !data.to || !data.ti) {
