@@ -1,164 +1,152 @@
 <!DOCTYPE HTML>
 <html>
     <head>
+        <script src="chart.js"></script>
+        <script src="jquery-3.6.0.min.js"></script>
         <script>
-            function drawTempOutPlot() {
-                let dataPoints = [];
-                let options =  {
-                    animationEnabled: true,
-                    theme: "light2",
-                    title: {
-                        text: "Temperature outside"
-                    },
-                    axisX: {
-                        valueFormatString: "HH:mm",
-                    },
-                    axisY: {
-                        title: "°C",
-                        valueFormatString: "##.00",
-                        titleFontSize: 20
-                    },
-                    data: [{
-                        type: "spline",
-                        dataPoints: dataPoints
-                    }]
-                };
+            $(() => {
+                $.getJSON('http://192.168.8.69:3000/api/measurements/getAll', plotMeasurements);
+            })
 
-                function addData(data) {
-                    for (var i = 0; i < data.length; i++) {
-                        dataPoints.push({
-                            x: new Date(data[i].timestamp*1000),
-                            y: data[i].temp_outside/100
-                        });
-                    }
-                    $("#chartContainer1").CanvasJSChart(options);
+            function plotMeasurements(measurements) {
+                const preparedData = prepareMeasurements(measurements);
+
+                let dataToPlot = {
+                    values: preparedData.tempInsideValues,
+                    dates: preparedData.dates,
+                    title: 'Temperature inside',
+                    unit: '°C',
+                    color: 'red'
                 }
-                
-                $.getJSON("http://192.168.8.69:3000/api/measurements/getAll", addData);
+                const tempInsideCanvas = document.getElementById('tempInside').getContext('2d');
+                const tempInsideChart = new Chart(tempInsideCanvas, getPlotConfig(dataToPlot));
+
+                dataToPlot = {
+                    values: preparedData.tempOutsideValues,
+                    dates: preparedData.dates,
+                    title: 'Temperature outside',
+                    unit: '°C',
+                    color: 'green'
+                }
+                const tempOutsideCanvas = document.getElementById('tempOutside').getContext('2d');
+                const tempOutsideChart = new Chart(tempOutsideCanvas, getPlotConfig(dataToPlot));
+
+                dataToPlot = {
+                    values: preparedData.pressureValues,
+                    dates: preparedData.dates,
+                    title: 'Pressure',
+                    unit: 'hPa',
+                    color: 'blue'
+                }
+                const pressureCanvas = document.getElementById('pressure').getContext('2d');
+                const pressureChart = new Chart(pressureCanvas, getPlotConfig(dataToPlot));
+
+                dataToPlot = {
+                    values: preparedData.humidityValues,
+                    dates: preparedData.dates,
+                    title: 'Humidity',
+                    unit: '%',
+                    color: 'brown'
+                }
+                const humidityCanvas = document.getElementById('humidity').getContext('2d');
+                const humidityChart = new Chart(humidityCanvas, getPlotConfig(dataToPlot));
             }
 
-            function drawTempInPlot() {
-                let dataPoints = [];
-                let options =  {
-                    animationEnabled: true,
-                    theme: "light2",
-                    title: {
-                        text: "Temperature inside"
-                    },
-                    axisX: {
-                        valueFormatString: "HH:mm",
-                    },
-                    axisY: {
-                        title: "°C",
-                        valueFormatString: "##.00",
-                        titleFontSize: 20
-                    },
-                    data: [{
-                        type: "spline",
-                        dataPoints: dataPoints
-                    }]
-                };
-
-                function addData(data) {
-                    for (var i = 0; i < data.length; i++) {
-                        dataPoints.push({
-                            x: new Date(data[i].timestamp*1000),
-                            y: data[i].temp_inside/100
-                        });
-                    }
-                    $("#chartContainer2").CanvasJSChart(options);
+            function prepareMeasurements(measurements) {
+                let preparedMeasurements = {
+                    tempInsideValues: [],
+                    tempOutsideValues: [],
+                    pressureValues: [],
+                    humidityValues: [],
+                    dates: []
                 }
-                $.getJSON("http://192.168.8.69:3000/api/measurements/getAll", addData);
+
+                for(let i = 0; i < measurements.length; i++) {
+                    preparedMeasurements.tempInsideValues.push(measurements[i].temp_inside/100);
+                    preparedMeasurements.tempOutsideValues.push(measurements[i].temp_outside/100);
+                    preparedMeasurements.pressureValues.push(measurements[i].pressure/100);
+                    preparedMeasurements.humidityValues.push(measurements[i].humidity);
+                    const dateFromTimestamp = new Date(measurements[i].timestamp*1000);
+                    const dateFormatted = dateFromTimestamp.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'});
+                    preparedMeasurements.dates.push(dateFormatted);
+                }
+                return preparedMeasurements;
             }
 
-            function drawPresPlot() {
-                let dataPoints = [];
-                let options =  {
-                    animationEnabled: true,
-                    theme: "light2",
-                    title: {
-                        text: "Pressure"
-                    },
-                    axisX: {
-                        valueFormatString: "HH:mm",
-                    },
-                    axisY: {
-                        title: "hPa",
-                        valueFormatString: "####.00",
-                        titleFontSize: 20
-                    },
-                    data: [{
-                        type: "spline",
-                        dataPoints: dataPoints
-                    }]
-                };
-
-                function addData(data) {
-                    for (var i = 0; i < data.length; i++) {
-                        dataPoints.push({
-                            x: new Date(data[i].timestamp*1000),
-                            y: data[i].pressure/100
-                        });
-                    }
-                    $("#chartContainer3").CanvasJSChart(options);
+            function getPlotConfig(sensorData) {
+                const dataToPlot = {
+                    labels: sensorData.dates,
+                    datasets: [
+                        {
+                            cubicInterpolationMode: 'monotone',
+                            borderColor: sensorData.color,
+                            label: '',
+                            data: sensorData.values
+                        }
+                    ]
                 }
-                $.getJSON("http://192.168.8.69:3000/api/measurements/getAll", addData);
-            }
-
-            function drawHumidPlot() {
-                let dataPoints = [];
-                let options =  {
-                    animationEnabled: true,
-                    theme: "light2",
-                    title: {
-                        text: "Temperature inside"
-                    },
-                    axisX: {
-                        valueFormatString: "HH:mm",
-                    },
-                    axisY: {
-                        title: "°C",
-                        valueFormatString: "##.0",
-                        titleFontSize: 20
-                    },
-                    data: [{
-                        type: "spline",
-                        dataPoints: dataPoints
-                    }]
-                };
-
-                function addData(data) {
-                    for (var i = 0; i < data.length; i++) {
-                        dataPoints.push({
-                            x: new Date(data[i].timestamp*1000),
-                            y: data[i].humidity
-                        });
+                const config = {
+                    type: 'line',
+                    data: dataToPlot,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: false,
+                            title: {
+                                display: true,
+                                text: sensorData.title,
+                                font: {
+                                    size: 48
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Date',
+                                    font: {
+                                        size: 24
+                                    }
+                                }
+                            },
+                            y: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: sensorData.unit,
+                                    font: {
+                                        size: 20
+                                    }
+                                }
+                            }
+                        }
                     }
-                    $("#chartContainer4").CanvasJSChart(options);
                 }
-                $.getJSON("http://192.168.8.69:3000/api/measurements/getAll", addData);
-            }
-
-            window.onload = function() {
-                drawTempInPlot();
-                drawTempOutPlot();
-                drawPresPlot()
-                drawHumidPlot();
+                return config;
             }
         </script>
     </head>
     <body>
-        <div class="myDiv" id="chartContainer1" style="height: 370px; width: 49%;"></div>
-        <div class="myDiv" id="chartContainer2" style="height: 370px; width: 49%;"></div>
-        <div class="myDiv" id="chartContainer3" style="height: 370px; width: 49%;"></div>
-        <div class="myDiv" id="chartContainer4" style="height: 370px; width: 49%;"></div>
-        <script src="jquery-3.6.0.min.js"></script>
-        <script src="jquery.canvasjs.min.js"></script>
+        <div class="chartContainer">
+            <canvas id="tempInside"></canvas>
+        </div>
+        <div class="chartContainer">
+            <canvas id="tempOutside"></canvas>
+        </div>
+        <div class="chartContainer">
+            <canvas id="pressure"></canvas>
+        </div>
+        <div class="chartContainer">
+            <canvas id="humidity"></canvas>
+        </div>
     </body>
     <style>
-        .myDiv {
-            display: inline-block;
-        }
+       .chartContainer {
+           display: inline-block;
+           width: 48%;
+       }
     </style>
 
 </html>

@@ -2,10 +2,10 @@ const express = require('express');
 const dbPromise = require('../db');
 const router = express.Router();
 
-router.post('/sendFull', async (req, res) => {
+router.post('/full', async (req, res) => {
     const db = await dbPromise;
     const data = req.body;
-    if(!data || !data.name || !data.to || !data.ti || !data.p || !data.h) {
+    if(!data || !data.name || !data.To || !data.Ti || !data.P || !data.RH) {
         console.log(`[ERROR] api.sensors.fullMeas: malformed JSON!`);
         res.status(400).send('Malformed JSON!');
         return;
@@ -17,7 +17,7 @@ router.post('/sendFull', async (req, res) => {
             (sensor_name, temp_outside, temp_inside, humidity, pressure)
             VALUES (?,?,?,?,?);
         `;
-        await db.run(sqlStatement, data.name, data.to, data.ti, data.h, data.p);
+        await db.run(sqlStatement, data.name, data.To, data.Ti, data.RH, data.P);
         console.log('[INFO] api.sensors.fullMeas: new measurement received!');
         res.send('OK');
     } catch(err) {
@@ -27,10 +27,10 @@ router.post('/sendFull', async (req, res) => {
 });
 
 
-router.post('/sendTemp', async (req, res) => {
+router.post('/temp', async (req, res) => {
     const db = await dbPromise;
     const data = req.body;
-    if(!data || !data.name || !data.to || !data.ti) {
+    if(!data || !data.name || !data.To || !data.Ti) {
         console.log(`[ERROR] api.sensors.tempMeas: ${err}!`);
         res.status(400).send('Malformed JSON data!');
     }
@@ -41,7 +41,7 @@ router.post('/sendTemp', async (req, res) => {
             (sensor_name, temp_outside, temp_inside)
             VALUES (?,?,?);
         `;
-        await db.run(sqlStatement, data.name, data.to, data.ti);
+        await db.run(sqlStatement, data.name, data.To, data.Ti);
         console.log('[INFO] api.sensors.tempMeas: new measurement received!');
         res.send('OK');
     } catch(err) {
