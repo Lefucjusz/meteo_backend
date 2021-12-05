@@ -1,51 +1,68 @@
 const express = require('express');
-const dbPromise = require('../db');
+const db = require('../db');
 const router = express.Router();
 
 router.post('/full', async (req, res) => {
-    const db = await dbPromise;
     const data = req.body;
-    if(!data || !data.name || !data.To || !data.Ti || !data.P || !data.RH) {
-        console.log(`[ERROR] api.sensors.fullMeas: malformed JSON!`);
+    if(
+        !data || 
+        (typeof(data.name) !== 'string') || 
+        (typeof(data.To) !== 'number') || 
+        (typeof(data.Ti) !== 'number') || 
+        (typeof(data.P) !== 'number') || 
+        (typeof(data.RH) !== 'number')
+    ) {
+        console.log(`[ERROR]: [POST] /api/sensors/full: malformed JSON!`);
         res.status(400).send('Malformed JSON!');
         return;
     }
 
     try {
-        const sqlStatement = `
-            INSERT INTO measurements
-            (sensor_name, temp_outside, temp_inside, humidity, pressure)
-            VALUES (?,?,?,?,?);
-        `;
-        await db.run(sqlStatement, data.name, data.To, data.Ti, data.RH, data.P);
-        console.log('[INFO] api.sensors.fullMeas: new measurement received!');
+        await db.measurement.create({
+            sensorName: data.name,
+            tempInside: data.Ti,
+            tempOutside: data.To,
+            pressure: data.P,
+            humidity: data.RH,
+            timestamp: Math.round(Date.now()/1000)
+        });
+        
+        console.log('[INFO]: [POST] /api/sensors/full: new measurement received!');
         res.send('OK');
     } catch(err) {
-        console.log(`[ERROR] api.sensors.fullMeas: ${err}!`);
+        console.log(`[ERROR]: [POST] /api/sensors/full: ${err}!`);
         res.status(500).send('Database error!');
     }
 });
 
 
 router.post('/temp', async (req, res) => {
-    const db = await dbPromise;
     const data = req.body;
-    if(!data || !data.name || !data.To || !data.Ti) {
-        console.log(`[ERROR] api.sensors.tempMeas: ${err}!`);
-        res.status(400).send('Malformed JSON data!');
+    if(
+        !data || 
+        (typeof(data.name) !== 'string') || 
+        (typeof(data.To) !== 'number') || 
+        (typeof(data.Ti) !== 'number')
+    ) {
+        console.log(`[ERROR]: [POST] /api/sensors/temp: malformed JSON!`);
+        res.status(400).send('Malformed JSON!');
+        return;
     }
 
     try {
-        const sqlStatement = `
-            INSERT INTO measurements
-            (sensor_name, temp_outside, temp_inside)
-            VALUES (?,?,?);
-        `;
-        await db.run(sqlStatement, data.name, data.To, data.Ti);
-        console.log('[INFO] api.sensors.tempMeas: new measurement received!');
+        await db.measurement.create({
+            sensorName: data.name,
+            tempInside: data.Ti,
+            tempOutside: data.To,
+            pressure: null,
+            humidity: null,
+            timestamp: Math.round(Date.now()/1000)
+        });
+        
+        console.log('[INFO]: [POST] /api/sensors/temp: new measurement received!');
         res.send('OK');
     } catch(err) {
-        console.log(`[ERROR] api.sensors.post.tempMeas: ${err}!`);
+        console.log(`[ERROR]: [POST] /api/sensors/temp: ${err}!`);
         res.status(500).send('Database error!');
     }
 });

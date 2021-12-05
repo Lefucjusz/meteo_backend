@@ -1,24 +1,24 @@
-const SqliteDatabase = require('sqlite-async');
+const {Sequelize} = require('sequelize');
+const measurmentModel = require('./model');
+const config = require('dotenv').config({path: __dirname + '/../../.env'}).parsed;
 
-async function initializeDB() {
-    try {
-        const db = await SqliteDatabase.open('./measurements.db');
-        await db.run(`
-            CREATE TABLE IF NOT EXISTS measurements (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                sensor_name TEXT NOT NULL,
-                timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-                temp_inside INTEGER NOT NULL,
-                temp_outside INTEGER NOT NULL,
-                humidity INTEGER,
-                pressure INTEGER
-            );`
-        );
-        console.log('Database initialized!');
-        return db;
-    } catch(err) {
-        throw new Error(`Error initializing SQLite DB: ${err}!`);
+const db = {
+    measurement: null,
+    connection: new Sequelize(config.DB_NAME, config.DB_USER, config.DB_PASS, {
+        host: config.DB_HOST,
+        dialect: 'postgres',
+        logging: false
+    }),
+    async init() {
+        try {
+            this.measurement = measurmentModel(this.connection);
+            await this.connection.sync();
+        } catch(err) {
+            console.error(`[ERROR] db.index.db.init: ${err}`);
+        }
     }
 }
 
-module.exports = initializeDB();
+db.init();
+
+module.exports = db;

@@ -1,12 +1,26 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <script src="chart.js"></script>
+        <meta charset="utf-8">
+        <title>Meteo sensor data presentation</title>
         <script src="jquery-3.6.0.min.js"></script>
+        <script src="chart.js"></script>
+        <script src="moment.min.js"></script>
+        <script src="chartjs-adapter-moment.min.js"></script>
         <script>
             $(() => {
-                $.getJSON('http://192.168.8.69:3000/api/measurements/getAll', plotMeasurements);
-            })
+                let hasLocalRequestSucceded = false;
+                $.getJSON('http://192.168.8.69:3000/api/measurements/getAll', (data) => {
+                    hasLocalRequestSucceded = true;
+                    plotMeasurements(data);
+                });
+
+                setTimeout(() => {
+                    if(hasLocalRequestSucceded === false) {
+                        $.getJSON('http://172.22.169.249:3000/api/measurements/getAll', plotMeasurements);
+                    }
+                }, 1000);
+            });
 
             function plotMeasurements(measurements) {
                 const preparedData = prepareMeasurements(measurements);
@@ -62,13 +76,11 @@
                 }
 
                 for(let i = 0; i < measurements.length; i++) {
-                    preparedMeasurements.tempInsideValues.push(measurements[i].temp_inside/100);
-                    preparedMeasurements.tempOutsideValues.push(measurements[i].temp_outside/100);
+                    preparedMeasurements.tempInsideValues.push(measurements[i].tempInside/100);
+                    preparedMeasurements.tempOutsideValues.push(measurements[i].tempOutside/100);
                     preparedMeasurements.pressureValues.push(measurements[i].pressure/100);
                     preparedMeasurements.humidityValues.push(measurements[i].humidity);
-                    const dateFromTimestamp = new Date(measurements[i].timestamp*1000);
-                    const dateFormatted = dateFromTimestamp.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'});
-                    preparedMeasurements.dates.push(dateFormatted);
+                    preparedMeasurements.dates.push(measurements[i].timestamp*1000);
                 }
                 return preparedMeasurements;
             }
@@ -89,37 +101,53 @@
                     type: 'line',
                     data: dataToPlot,
                     options: {
+                        animation: false,
                         responsive: true,
                         plugins: {
                             legend: false,
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.formattedValue + sensorData.unit;
+                                    }
+                                }
+                            },
                             title: {
                                 display: true,
                                 text: sensorData.title,
                                 font: {
-                                    size: 48
+                                    size: 32
                                 }
                             }
                         },
                         scales: {
                             x: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Date',
-                                    font: {
-                                        size: 24
+                                type: 'time',
+                                time: {
+                                    tooltipFormat: 'DD/MM/YYYY HH:mm',
+                                    unit: 'hour',
+                                    displayFormats: {
+                                        hour: 'DD/MM/YY HH:mm'
                                     }
-                                }
+                                },
+                                ticks: {
+                                    callback: function(val, index) {
+                                        const hour = parseInt(val.substr(9, 2), 10);
+                                        if(hour != 0) {
+                                            return val.substr(9, 5);
+                                        }
+                                        return val;
+                                    }
+                                },
+                                display: true
                             },
                             y: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: sensorData.unit,
-                                    font: {
-                                        size: 20
+                                ticks: {
+                                    callback: function(val, index) {
+                                       return val + sensorData.unit;
                                     }
-                                }
+                                },
+                                display: true
                             }
                         }
                     }

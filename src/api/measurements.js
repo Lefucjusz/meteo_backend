@@ -1,18 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const dbPromise = require('../db');
+const db = require('../db');
 
 router.get('/getAll', async (req, res) => {
-    const db = await dbPromise;
+    console.log('[INFO]: [GET] /api/measurements/getAll');
     try {
-        const data = await db.all('SELECT * FROM measurements');
-        console.log(`[INFO] api.measurements.getAll: new request received!`);
+        const data = await db.measurement.findAll();
         res.send(data);
     } catch(err) {
-        console.log(`[ERROR] api.measurements.getAll: ${err}!`);
+        console.log(`[ERROR]: [GET] /api/measurements/getAll: ${err}`);
         res.status(500).send('Database error!');
     }
 });
-
 
 module.exports = router;
