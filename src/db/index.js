@@ -17,7 +17,7 @@ const db = {
     async init() {
         try {
             this.measurement = measurmentModel(this.connection);
-            await this.connection.sync({force: true});
+            await this.connection.sync();
         } catch(err) {
             console.error(`[ERROR] db.index.db.init: ${err}`);
         }
