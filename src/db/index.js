@@ -1,12 +1,14 @@
 const {Sequelize} = require('sequelize');
 const measurmentModel = require('./model');
-const config = require('dotenv').config({path: __dirname + '/../../.env'}).parsed;
 
 const db = {
     measurement: null,
-    connection: new Sequelize(config.DB_NAME, config.DB_USER, config.DB_PASS, {
-        host: config.DB_HOST,
+    connection: new Sequelize(process.env.DATABASE_URL, {
         dialect: 'postgres',
+        protocol: 'postgres',
+        dialectOptions: {
+            ssl: true
+        },
         logging: false
     }),
     async init() {
