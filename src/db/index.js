@@ -7,7 +7,10 @@ const db = {
         dialect: 'postgres',
         protocol: 'postgres',
         dialectOptions: {
-            ssl: true
+            ssl: {
+                require: true,
+                rejectUnauthorized: false
+            }
         },
         logging: false
     }),
