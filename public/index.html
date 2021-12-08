@@ -9,17 +9,7 @@
         <script src="chartjs-adapter-moment.min.js"></script>
         <script>
             $(() => {
-                let hasLocalRequestSucceded = false;
-                $.getJSON('http://192.168.8.69:3000/api/measurements/getAll', (data) => {
-                    hasLocalRequestSucceded = true;
-                    plotMeasurements(data);
-                });
-
-                setTimeout(() => {
-                    if(hasLocalRequestSucceded === false) {
-                        $.getJSON('http://172.22.169.249:3000/api/measurements/getAll', plotMeasurements);
-                    }
-                }, 1000);
+                $.getJSON('http://meteo-48.herokuapp.com/api/measurements/getAll', plotMeasurements(data));
             });
 
             function plotMeasurements(measurements) {
