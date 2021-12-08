@@ -20,7 +20,7 @@ router.post('/full', async (req, res) => {
     const tempInside = parseInt(data.Ti);
     const tempOutside = parseInt(data.To);
     const pressure = parseInt(data.P);
-    const humidity = parseInt(data.P);
+    const humidity = parseInt(data.RH);
 
     if(isNaN(tempInside) || isNaN(tempOutside) || isNaN(pressure) || isNaN(humidity)) {
         console.log(`[ERROR]: [POST] /api/sensors/full: received NaN!`);
