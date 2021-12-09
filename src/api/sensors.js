@@ -46,7 +46,6 @@ router.post('/full', async (req, res) => {
     }
 });
 
-
 router.post('/temp', async (req, res) => {
     const data = req.body;
     if(
