@@ -2,14 +2,14 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Meteo sensor data presentation</title>
+        <title>LOWD: LOgger of the Weather Data</title>
         <script src="jquery-3.6.0.min.js"></script>
         <script src="chart.js"></script>
         <script src="moment.min.js"></script>
         <script src="chartjs-adapter-moment.min.js"></script>
         <script>
             $(() => {
-                $.getJSON('http://meteo-48.herokuapp.com/api/measurements/getAll', plotMeasurements);
+                $.getJSON('http://lowd.herokuapp.com/api/measurements/getAll', plotMeasurements);
             });
 
             function plotMeasurements(measurements) {
