@@ -9,7 +9,7 @@
         <script src="chartjs-adapter-moment.min.js"></script>
         <script>
             $(() => {
-                $.getJSON('http://lowd.herokuapp.com/api/measurements/getAll', plotMeasurements);
+                $.getJSON('lowd.herokuapp.com/api/measurements/getAll', plotMeasurements);
             });
 
             function plotMeasurements(measurements) {
