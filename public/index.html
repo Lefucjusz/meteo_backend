@@ -9,7 +9,7 @@
         <script src="chartjs-adapter-moment.min.js"></script>
         <script>
             $(() => {
-                $.getJSON('/api/measurements/getAll', plotMeasurements);
+                $.getJSON('/api/measurements/getByName/Quark', plotMeasurements);
             });
 
             function plotMeasurements(measurements) {
