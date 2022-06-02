@@ -47,7 +47,7 @@
 
                 dataToPlot = {
                     values: preparedData.humidityValues,
-                    dates: preparedData.dates,
+                    dates: preparedData.humidityDates,
                     title: 'Humidity',
                     unit: '%',
                     color: 'brown'
@@ -62,14 +62,19 @@
                     tempOutsideValues: [],
                     pressureValues: [],
                     humidityValues: [],
-                    dates: []
+                    dates: [],
+                    humidityDates: []
                 }
 
+                const maxHumidityValue = 100;
                 for(let i = 0; i < measurements.length; i++) {
                     preparedMeasurements.tempInsideValues.push(measurements[i].tempInside/100);
                     preparedMeasurements.tempOutsideValues.push(measurements[i].tempOutside/100);
                     preparedMeasurements.pressureValues.push(measurements[i].pressure/100);
-                    preparedMeasurements.humidityValues.push(measurements[i].humidity);
+                    if(measurements[i].humidity <= maxHumidityValue) {
+                        preparedMeasurements.humidityValues.push(measurements[i].humidity);
+                        preparedMeasurements.humidityDates.push(measurements[i].timestamp*1000);
+                    }
                     preparedMeasurements.dates.push(measurements[i].timestamp*1000);
                 }
                 return preparedMeasurements;
